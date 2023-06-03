@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-39988758-2');
+    </script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="user-scalable=no, minimum-scale=1.0, maximum-scale=1.0, width=device-width, height=device-height, initial-scale=1" />
+    <title>Sea Level Rise 3D Map</title>
+    <meta name="description" content="A 3D map of sea level rise simulation. This data visualization was produced by Akihiko Kusanagi." />
+    <meta name="viewport" content="user-scalable=no, minimum-scale=1.0, maximum-scale=1.0, width=device-width, height=device-height, initial-scale=1" />
+    <meta property="og:title" content="Sea Level Rise 3D Map" />
+    <meta property="og:description" content="A 3D map of sea level rise simulation. This data visualization was produced by Akihiko Kusanagi." />
+    <meta property="og:locale" content="en_US" />
+    <link rel="canonical" href="https://nagix.github.io/sea-level-rise-3d-map" />
+    <meta property="og:url" content="https://nagix.github.io/sea-level-rise-3d-map" />
+    <meta property="og:site_name" content="Sea Level Rise 3D Map" />
+    <meta property="og:image" content="https://nagix.github.io/sea-level-rise-3d-map/screenshot1.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@nagix" />
+    <script src="https://unpkg.com/deck.gl@latest/dist.min.js"></script>
+    <script src="https://unpkg.com/@luma.gl/shadertools@latest/dist/dist.min.js"></script>
+    <script src="https://www.unpkg.com/suncalc@latest/suncalc.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "@math.gl/web-mercator": "https://unpkg.com/@math.gl/web-mercator@latest/dist/esm/index.js",
+          "@math.gl/geoid": "https://unpkg.com/@math.gl/geoid@latest/dist/esm/index.js",
+          "@babel/runtime/": "https://unpkg.com/@babel/runtime@latest/",
+          "gl-matrix/": "https://unpkg.com/gl-matrix@latest/esm/",
+          "three": "https://unpkg.com/three@latest/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@latest/examples/jsm/"
+        }
+      }
+    </script>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      }
+      #map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+      }
+      #search-outer-container {
+        position: absolute;
+        top: 10px;
+        left: 0;
+        height: 50px;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        pointer-events: none;
+      }
+      #search-inner-container {
+        padding: 10px 20px;
+        background-color: rgba(51, 51, 51, 0.7);
+        border-radius: 25px;
+        pointer-events: none;
+      }
+      #search-label {
+        color: white;
+        font-size: 16px;
+        pointer-events: none;
+      }
+      #search-field {
+        width: 200px;
+        height: 20px;
+        padding: 5px 10px;
+        border: none;
+        border-radius: 15px;
+        appearance: none;
+        font-size: 16px;
+        pointer-events: auto;
+      }
+      #water-level-container {
+        position: absolute;
+        top: 50%;
+        left: 10px;
+        height: 50%;
+        width: 30px;
+        transform: translate(0, -50%);
+        background-color: rgba(51, 51, 51, 0.7);
+        border-radius: 15px;
+        pointer-events: none;
+      }
+      #water-level-slider {
+        position: absolute;
+        top: 10px;
+        left: 5px;
+        height: calc(100% - 20px);
+        width: 20px;
+        margin: 0;
+        -webkit-appearance: slider-vertical;
+        pointer-events: auto;
+      }
+      #water-level-label {
+        position: absolute;
+        top: 50%;
+        left: 50px;
+        padding: 5px 10px;
+        transform: translate(0, -50%);
+        color: white;
+        background-color: rgba(51, 51, 51, 0.7);
+        border-radius: 15px;
+        font-size: 20px;
+        font-weight: bold;
+        pointer-events: none;
+      }
+      #time-offset-container {
+        position: absolute;
+        bottom: 35px;
+        left: 50%;
+        height: 30px;
+        width: 50%;
+        transform: translate(-50%, 0);
+        background-color: rgba(51, 51, 51, 0.7);
+        border-radius: 15px;
+        pointer-events: none;
+      }
+      #time-offset-slider {
+        position: absolute;
+        top: 5px;
+        left: 10px;
+        height: 20px;
+        width: calc(100% - 20px);
+        margin: 0;
+        pointer-events: auto;
+      }
+      #time-offset-label {
+        position: absolute;
+        bottom: 75px;
+        left: 50%;
+        padding: 5px 10px;
+        transform: translate(-50%, 0);
+        color: white;
+        background-color: rgba(51, 51, 51, 0.7);
+        border-radius: 15px;
+        font-size: 20px;
+        font-weight: bold;
+        pointer-events: none;
+      }
+      #credits {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        padding: 4px;
+        font-size: 12px;
+        text-align: right;
+        color: white;
+        text-shadow: 0 0 2px black, 0 0 2px black, 0 0 2px black, 0 0 2px black,
+          0 0 2px black;
+        pointer-events: none;
+      }
+      #credits a {
+        color: white;
+        pointer-events: auto;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="map"></div>
+    <div id="search-outer-container">
+      <div id="search-inner-container">
+        <label id="search-label" for="search-field">Search: </label>
+        <input id="search-field" type="text" name="search" placeholder="Enter a location...">
+      </div>
+    </div>
+    <div id="water-level-container">
+      <input id="water-level-slider" type="range" min="0" max="100" step="0.5" value="10">
+    </div>
+    <div id="water-level-label">10m</div>
+    <div id="time-offset-container">
+      <input id="time-offset-slider" type="range" min="-720" max="720" step="5" value="0">
+    </div>
+    <div id="time-offset-label">+00:00</div>
+    <div id="credits"></div>
+    <script type="module">
+      import * as THREE from 'three';
+//      import Stats from 'three/addons/libs/stats.module.js';
+      import {Water} from 'three/addons/objects/Water.js';
+      import {Sky} from 'three/addons/objects/Sky.js';
+      import {unitsPerMeter, getProjectionParameters, zoomToScale} from '@math.gl/web-mercator';
+      import {parsePGM} from '@math.gl/geoid';
+
+      const WATER_TEXTURE = 'https://threejs.org/examples/textures/waternormals.jpg';
+      const GEOID_DATA = 'egm2008-5.pgm';
+      THREE.ColorManagement.enabled = false;
+
+      // Please don't use this key. Get your own at https://developers.google.com/maps/documentation/javascript/get-api-key
+      const GOOGLE_API_KEY = 'AIzaSyD3tLhuSuRsZmtstl14nMMBeZdtqkdGlOs';
+      const TILESET_URL = 'https://tile.googleapis.com/v1/3dtiles/root.json';
+      const waterLevelSliderElement = document.getElementById('water-level-slider');
+      const waterLevelLabelElement = document.getElementById('water-level-label');
+      const timeOffsetSliderElement = document.getElementById('time-offset-slider');
+      const timeOffsetLabelElement = document.getElementById('time-offset-label');
+      const creditsElement = document.getElementById('credits');
+      let waterLevel = 10;
+      let timeOffset = 0;
+
+      function updateHash(viewState) {
+        const {longitude, latitude, zoom, bearing, pitch} = viewState;
+        const hash = `#/${longitude}/${latitude}/${zoom}/${
+          bearing === 0 && pitch === 0 ? '' : bearing
+        }/${pitch === 0 ? '' : pitch}`;
+        const location = window.location.href.replace(/(#.+)?$/, hash);
+        window.history.replaceState(window.history.state, null, location);
+      }
+
+      function throttle(fn, interval, options) {
+        var timeoutId = null;
+        var throttledFn = null;
+        var leading = options && options.leading;
+        var trailing = options && options.trailing;
+        if (leading == null) {
+          leading = true; // default
+        }
+        if (trailing == null) {
+          trailing = !leading; //default
+        }
+        if (leading == true) {
+          trailing = false; // forced because there should be invocation per call
+        }
+        var cancel = function () {
+          if (timeoutId) {
+            clearTimeout(timeoutId);
+            timeoutId = null;
+          }
+        };
+        var flush = function () {
+          var call = throttledFn;
+          cancel();
+          if (call) {
+            call();
+          }
+        };
+        var throttleWrapper = function () {
+          var callNow = leading && !timeoutId;
+          var context = this;
+          var args = arguments;
+          throttledFn = function () {
+            return fn.apply(context, args);
+          };
+          if (!timeoutId) {
+            timeoutId = setTimeout(function () {
+              timeoutId = null;
+              if (trailing) {
+                return throttledFn();
+              }
+            }, interval);
+          }
+          if (callNow) {
+            callNow = false;
+            return throttledFn();
+          }
+        };
+        throttleWrapper.cancel = cancel;
+        throttleWrapper.flush = flush;
+        return throttleWrapper;
+      }
+
+      const throttledUpdateHash = throttle(updateHash, (30 * 1000) / 100);
+
+      class WaterLayer extends deck.Layer {
+        static layerName = 'WaterLayer';
+        static defaultProps = {
+          waterLevel: {type: 'number', value: 0},
+        };
+
+        initializeState() {
+          const {deck, gl} = this.context;
+          const scene = new THREE.Scene();
+          const camera = new THREE.PerspectiveCamera();
+          const renderer = new THREE.WebGLRenderer({
+            canvas: deck.canvas,
+            context: gl
+          });
+          renderer.autoClear = false;
+          renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
+          renderer.toneMapping = THREE.ACESFilmicToneMapping;
+
+          const water = new Water(
+            new THREE.PlaneGeometry(32768, 32768),
+            {
+              textureWidth: 512,
+              textureHeight: 512,
+              waterNormals: new THREE.TextureLoader().load(WATER_TEXTURE, texture => {
+                texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+              }),
+              sunDirection: new THREE.Vector3(),
+              sunColor: 0xffffff,
+              waterColor: 0x001e0f,
+              distortionScale: 3.7,
+              fog: scene.fog !== undefined
+            }
+          );
+          water.material.uniforms['size'].value = 10;
+          water.rotation.x = -Math.PI / 2;
+          scene.add(water);
+
+          const sky = new Sky();
+          sky.scale.setScalar(32768);
+          scene.add(sky);
+          const skyUniforms = sky.material.uniforms;
+          skyUniforms['turbidity'].value = 10;
+          skyUniforms['rayleigh'].value = 2;
+          skyUniforms['mieCoefficient'].value = 0.005;
+          skyUniforms['mieDirectionalG'].value = 0.8;
+          const pmremGenerator = new THREE.PMREMGenerator(renderer);
+          const sun = new THREE.Vector3();
+
+          this.setState({camera, scene, renderer, water, sky, sun, pmremGenerator});
+
+          fetch(GEOID_DATA).then(response => response.arrayBuffer()).then(data => {
+            this.setState({
+              geoid: parsePGM(new Uint8Array(data), {cubic: true})
+            });
+          });
+        }
+
+        updateState() {
+          const {gl, viewport} = this.context;
+          const {longitude, latitude} = viewport;
+          const {scene, water, sky, sun, pmremGenerator} = this.state;
+//          let {renderTarget} = this.state;
+          const time = Date.now() + this.props.timeOffset * 60000;
+          const {azimuth, altitude} = SunCalc.getPosition(time, latitude, longitude);
+          const phi = Math.PI / 2 - altitude;
+          const theta = -azimuth;
+
+          sun.setFromSphericalCoords(1, phi, theta);
+          sky.material.uniforms['sunPosition'].value.copy(sun);
+          water.material.uniforms['sunDirection'].value.copy(sun).normalize();
+//          if (renderTarget !== undefined) {
+//            renderTarget.dispose();
+//          }
+//          renderTarget = pmremGenerator.fromScene(sky);
+//          scene.environment = renderTarget.texture;
+
+//          this.setState({renderTarget});
+        }
+
+        draw() {
+          const {deck, gl, viewport} = this.context;
+          const {camera, scene, renderer, water, geoid, longitude: oldLongitude, latitude: oldLatitude} = this.state;
+          const {width, height, zoom, position, pitch, fovy, longitude, latitude, center, viewProjectionMatrix} = viewport;
+          const scale = unitsPerMeter(latitude);
+          const scaleH = unitsPerMeter(35);
+          const translateX = Math.floor(center[0] / (890 * scaleH)) * (890 * scaleH);
+          const translateY = Math.floor(center[1] / (980 * scaleH)) * (980 * scaleH);
+          let {geoidHeight} = this.state;
+          if (geoid && (longitude !== oldLongitude || latitude !== oldLatitude)) {
+            geoidHeight = geoid.getHeight(latitude, longitude);
+            this.setState({longitude, latitude, geoidHeight});
+          }
+          const translateZ = (geoidHeight + this.props.waterLevel) * scale;
+          const rotationX = new THREE.Matrix4().makeRotationAxis(
+            new THREE.Vector3(1, 0, 0),
+            Math.PI / 2
+          );
+
+          const m = new THREE.Matrix4().fromArray(viewProjectionMatrix);
+          const l = new THREE.Matrix4()
+            .makeTranslation(translateX, translateY, translateZ)
+            .scale(new THREE.Vector3(scaleH, scaleH, scaleH))
+            .multiply(rotationX);
+
+          const {fov, aspect, near, far} = getProjectionParameters({
+            width,
+            height,
+            scale: zoomToScale(zoom),
+            center: position,
+            pitch,
+            fovy,
+            nearZMultiplier: 0.1,
+            farZMultiplier: 1.01
+          });
+          camera.aspect = aspect;
+          camera.near = near;
+          camera.far = far;
+          const halfHeight = Math.tan(THREE.MathUtils.degToRad(fov / 2)) * near;
+          const halfWidth = halfHeight * aspect;
+          camera.projectionMatrix.makePerspective(
+            -halfWidth, halfWidth, halfHeight, -halfHeight, near, far
+          ).clone().invert().multiply(m).multiply(l).invert()
+            .decompose(camera.position, camera.quaternion, camera.scale);
+
+          water.material.uniforms['time'].value = performance.now() / 1000;
+
+          renderer.resetState();
+          renderer.setSize(deck.canvas.width, deck.canvas.height, false);
+          renderer.render(scene, camera);
+
+          gl.cullFace(gl.FRONT);
+        }
+      }
+
+      const tile3DLayer = new deck.Tile3DLayer({
+        id: 'google-3d-tiles',
+        data: TILESET_URL,
+        loadOptions: {
+          fetch: {
+            headers: {
+              'X-GOOG-API-KEY': GOOGLE_API_KEY
+            }
+          }
+        },
+        onTilesetLoad: tileset3d => {
+          tileset3d.options.onTraversalComplete = selectedTiles => {
+            const credits = new Set();
+            selectedTiles.forEach(tile => {
+              const {copyright} = tile.content.gltf.asset;
+              copyright.split(';').forEach(credits.add, credits);
+              creditsElement.innerHTML = [...credits].join('; ') +
+                ` | <a href="https://github.com/nagix/sea-level-rise-3d-map" target="_blank">Source code</a>`;
+            });
+            return selectedTiles;
+          }
+        }
+      });
+
+      const hash = window.location.hash.replace(/^#\/?/, '');
+      const [longitude, latitude, zoom, bearing, pitch] = hash
+        .split('/')
+        .map((x) => parseFloat(x));
+      const defaultViewState = {
+        latitude: latitude || 40.7086314,
+        longitude: longitude || -74.0026669,
+        zoom: zoom || 15.89,
+        bearing: bearing || -81.52,
+        pitch: pitch || 77.04
+      };
+
+      const _deck = new deck.DeckGL({
+        container: 'map',
+        initialViewState: defaultViewState,
+        controller: {minZoom: 13, maxPitch: 89, touchRotate: true},
+        onViewStateChange: ({viewState}) => throttledUpdateHash(viewState),
+        _animate: true
+      });
+
+      function updateLayers() {
+        _deck.setProps({
+          layers: [
+            tile3DLayer,
+            new WaterLayer({id: 'ocean', waterLevel, timeOffset})
+          ]
+        });
+      }
+
+      function resetTimeOffset({latitude, longitude}) {
+        const {goldenHour} = SunCalc.getTimes(Date.now(), latitude, longitude);
+        const offset = (goldenHour.getTime() - Date.now()) / 60000;
+        timeOffset = Math.floor(((offset + 2160) % 1440 - 720) / 5) * 5;
+      }
+
+      function updateTimeOffsetLabel() {
+        timeOffsetLabelElement.innerText =
+          (timeOffset < 0 ? '-' : '+') +
+          String(Math.floor(Math.abs(timeOffset) / 60)).padStart(2, '0') + ':' +
+          String(Math.abs(timeOffset) % 60).padStart(2, '0');
+      }
+
+      resetTimeOffset(defaultViewState);
+      timeOffsetSliderElement.value = timeOffset;
+      updateTimeOffsetLabel();
+      updateLayers();
+
+//      function animate() {
+//        requestAnimationFrame(animate);
+//        stats.update();
+//      }
+
+//      const container = document.getElementById('map');
+//      const stats = new Stats();
+//      container.appendChild(stats.dom);
+//      animate();
+
+      waterLevelSliderElement.addEventListener('input', e => {
+        waterLevel = +e.target.value;
+        waterLevelLabelElement.innerText = `${waterLevel}m`;
+        updateLayers();
+      });
+      timeOffsetSliderElement.addEventListener('input', e => {
+        timeOffset = +e.target.value;
+        updateTimeOffsetLabel();
+        updateLayers();
+      });
+
+      window.initAutocomplete = () => {
+        const autocomplete = new google.maps.places.Autocomplete(
+          document.getElementById('search-field'),
+          {
+            fields: ['geometry', 'name'],
+          },
+        );
+        autocomplete.addListener('place_changed', () => {
+          const place = autocomplete.getPlace();
+          const {location} = place.geometry;
+          const {lat, lng} = location;
+          const viewState = {
+            ...defaultViewState,
+            latitude: lat(),
+            longitude: lng()
+          };
+          _deck.setProps({initialViewState: viewState});
+          updateHash(viewState);
+
+          resetTimeOffset(viewState);
+          timeOffsetSliderElement.value = timeOffset;
+          updateTimeOffsetLabel();
+          setTimeout(() => updateLayers(), 100);
+        });
+      };
+
+      const script = document.createElement('script');
+      script.src =
+        'https://maps.googleapis.com/maps/api/js?key=' +
+        GOOGLE_API_KEY +
+        '&libraries=places&callback=initAutocomplete';
+      script.defer = true;
+      script.async = true;
+      document.head.appendChild(script);
+    </script>
+  </body>
+</html>
