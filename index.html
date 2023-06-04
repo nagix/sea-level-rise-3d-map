@@ -48,6 +48,41 @@
         bottom: 0;
         width: 100%;
       }
+      #zoom-in-button, #zoom-out-button, #pan-button, #rotate-button {
+        position: absolute;
+        right: 10px;
+        height: 40px;
+        width: 40px;
+        border: none;
+        background: rgba(0, 0, 0, 0.7) no-repeat center/21px;
+      }
+      #zoom-in-button {
+        top: 10px;
+        border-radius: 20px 20px 0 0;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512' fill='%23fff'%3E%3Cpath d='M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z'/%3E%3C/svg%3E");
+      }
+      #zoom-out-button {
+        top: 52px;
+        border-radius: 0 0 20px 20px;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512' fill='%23fff'%3E%3Cpath d='M432 256c0 17.7-14.3 32-32 32L48 288c-17.7 0-32-14.3-32-32s14.3-32 32-32l352 0c17.7 0 32 14.3 32 32z'/%3E%3C/svg%3E");
+      }
+      #pan-button {
+        top: 102px;
+        border-radius: 20px 20px 0 0;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512' fill='%23fff'%3E%3Cpath d='M278.6 9.4c-12.5-12.5-32.8-12.5-45.3 0l-64 64c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l9.4-9.4V224H109.3l9.4-9.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-64 64c-12.5 12.5-12.5 32.8 0 45.3l64 64c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3l-9.4-9.4H224V402.7l-9.4-9.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l64 64c12.5 12.5 32.8 12.5 45.3 0l64-64c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-9.4 9.4V288H402.7l-9.4 9.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l64-64c12.5-12.5 12.5-32.8 0-45.3l-64-64c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l9.4 9.4H288V109.3l9.4 9.4c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3l-64-64z'/%3E%3C/svg%3E");
+      }
+      #rotate-button {
+        top: 144px;
+        border-radius: 0 0 20px 20px;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512' fill='%23fff'%3E%3Cpath d='M463.5 224H472c13.3 0 24-10.7 24-24V72c0-9.7-5.8-18.5-14.8-22.2s-19.3-1.7-26.2 5.2L413.4 96.6c-87.6-86.5-228.7-86.2-315.8 1c-87.5 87.5-87.5 229.3 0 316.8s229.3 87.5 316.8 0c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0c-62.5 62.5-163.8 62.5-226.3 0s-62.5-163.8 0-226.3c62.2-62.2 162.7-62.5 225.3-1L327 183c-6.9 6.9-8.9 17.2-5.2 26.2s12.5 14.8 22.2 14.8H463.5z'/%3E%3C/svg%3E");
+      }
+      #zoom-in-button:hover, #zoom-out-button:hover,
+      #pan-button:hover, #rotate-button:hover {
+        background-color: rgba(51, 51, 51, 0.7);
+      }
+      #pan-button:disabled, #rotate-button:disabled {
+        background-color: rgba(50, 115, 246, 0.7);
+      }
       #search-outer-container {
         position: absolute;
         top: 10px;
@@ -63,12 +98,10 @@
         padding: 10px 20px;
         background-color: rgba(51, 51, 51, 0.7);
         border-radius: 25px;
-        pointer-events: none;
       }
       #search-label {
         color: white;
         font-size: 16px;
-        pointer-events: none;
       }
       #search-field {
         width: 200px;
@@ -80,72 +113,63 @@
         font-size: 16px;
         pointer-events: auto;
       }
-      #water-level-container {
+      #water-level-container, #time-offset-container {
         position: absolute;
+        background-color: rgba(51, 51, 51, 0.7);
+        border-radius: 15px;
+        pointer-events: none;
+      }
+      #water-level-container {
         top: 50%;
         left: 10px;
         height: 50%;
         width: 30px;
         transform: translate(0, -50%);
-        background-color: rgba(51, 51, 51, 0.7);
-        border-radius: 15px;
-        pointer-events: none;
-      }
-      #water-level-slider {
-        position: absolute;
-        top: 10px;
-        left: 5px;
-        height: calc(100% - 20px);
-        width: 20px;
-        margin: 0;
-        -webkit-appearance: slider-vertical;
-        pointer-events: auto;
-      }
-      #water-level-label {
-        position: absolute;
-        top: 50%;
-        left: 50px;
-        padding: 5px 10px;
-        transform: translate(0, -50%);
-        color: white;
-        background-color: rgba(51, 51, 51, 0.7);
-        border-radius: 15px;
-        font-size: 20px;
-        font-weight: bold;
-        pointer-events: none;
       }
       #time-offset-container {
-        position: absolute;
         bottom: 35px;
         left: 50%;
         height: 30px;
         width: 50%;
         transform: translate(-50%, 0);
-        background-color: rgba(51, 51, 51, 0.7);
-        border-radius: 15px;
-        pointer-events: none;
+      }
+      #water-level-slider, #time-offset-slider {
+        position: absolute;
+        margin: 0;
+        pointer-events: auto;
+      }
+      #water-level-slider {
+        top: 10px;
+        left: 5px;
+        height: calc(100% - 20px);
+        width: 20px;
+        -webkit-appearance: slider-vertical;
       }
       #time-offset-slider {
-        position: absolute;
         top: 5px;
         left: 10px;
         height: 20px;
         width: calc(100% - 20px);
-        margin: 0;
-        pointer-events: auto;
       }
-      #time-offset-label {
+      #water-level-label, #time-offset-label {
         position: absolute;
-        bottom: 75px;
-        left: 50%;
         padding: 5px 10px;
-        transform: translate(-50%, 0);
         color: white;
-        background-color: rgba(51, 51, 51, 0.7);
         border-radius: 15px;
+        background-color: rgba(51, 51, 51, 0.7);
         font-size: 20px;
         font-weight: bold;
         pointer-events: none;
+      }
+      #water-level-label {
+        top: 50%;
+        left: 50px;
+        transform: translate(0, -50%);
+      }
+      #time-offset-label {
+        bottom: 75px;
+        left: 50%;
+        transform: translate(-50%, 0);
       }
       #credits {
         position: absolute;
@@ -168,6 +192,10 @@
 
   <body>
     <div id="map"></div>
+    <button id="zoom-in-button"></button>
+    <button id="zoom-out-button"></button>
+    <button id="pan-button" disabled></button>
+    <button id="rotate-button"></button>
     <div id="search-outer-container">
       <div id="search-inner-container">
         <label id="search-label" for="search-field">Search: </label>
@@ -483,6 +511,29 @@
 //      const stats = new Stats();
 //      container.appendChild(stats.dom);
 //      animate();
+
+      const canvasElement = document.querySelector('#map>canvas');
+      const zoomInButton = document.getElementById('zoom-in-button');
+      zoomInButton.addEventListener('mousedown', e => {
+        canvasElement.dispatchEvent(new KeyboardEvent('keydown', {code: 'Equal'}));
+      });
+      const zoomOutButton = document.getElementById('zoom-out-button');
+      zoomOutButton.addEventListener('mousedown', e => {
+        canvasElement.dispatchEvent(new KeyboardEvent('keydown', {code: 'Minus'}));
+      });
+      const panButton = document.getElementById('pan-button');
+      const rotateButton = document.getElementById('rotate-button');
+      panButton.addEventListener('mousedown', e => {
+        panButton.disabled = true;
+        rotateButton.disabled = false;
+        _deck.setProps({controller: {dragMode: 'pan'}});
+      });
+      rotateButton.addEventListener('mousedown', e => {
+        panButton.disabled = false;
+        rotateButton.disabled = true;
+        _deck.setProps({controller: {dragMode: 'rotate'}});
+      });
+
 
       waterLevelSliderElement.addEventListener('input', e => {
         waterLevel = +e.target.value;
