@@ -1,10 +1,12 @@
 # Sea Level Rise 3D Map
 
-A 3D map of sea level rise simulation. This demo shows how to use [Google Maps Photorealistic 3D Tiles](https://cloud.google.com/blog/products/maps-platform/create-immersive-3d-map-experiences-photorealistic-3d-tiles) with [deck.gl](https://deck.gl) and [Three.js](https://threejs.org).
+A 3D map of sea level rise simulation. This demo shows how to use [Google Maps Photorealistic 3D Tiles](https://cloud.google.com/blog/products/maps-platform/create-immersive-3d-map-experiences-photorealistic-3d-tiles) with [deck.gl](https://deck.gl) and [three.js](https://threejs.org).
 
 ![Screenshot](https://nagix.github.io/sea-level-rise-3d-map/screenshot1.jpg)
 
 See a [Live Demo](https://nagix.github.io/sea-level-rise-3d-map). Move sliders to change the sea level and the time offset. 
+
+Note that the Google 3D tiles reaches its daily access limit quickly, so if you can only see the ocean, try again after midnight Pacific Time the next day.
 
 ## Resources
 

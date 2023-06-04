@@ -191,6 +191,36 @@
         color: white;
         pointer-events: auto;
       }
+      #limit-error {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 250px;
+        height: 50px;
+        transform: translate(-50%, -50%);
+        padding: 20px 30px 20px 20px;
+        color: white;
+        border-radius: 15px;
+        background-color: rgba(51, 51, 51, 0.7);
+        font-size: 14px;
+        pointer-events: none;
+      }
+      #limit-error-close-button {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 21px;
+        height: 21px;
+        background: no-repeat center/21px url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 384 512' fill='%23fff'%3E%3Cpath d='M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z'/%3E%3C/svg%3E");
+        cursor: pointer;
+        pointer-events: auto;
+      }
+      #limit-error-switch {
+        display: none;
+      }
+      #limit-error-switch:not(:checked)+#limit-error {
+        display: none;
+      }
     </style>
   </head>
 
@@ -214,6 +244,11 @@
     </div>
     <div id="time-offset-label">+00:00</div>
     <div id="credits"></div>
+    <input id="limit-error-switch" type="checkbox">
+    <div id="limit-error">
+      The daily access limit has been reached. Please try again after midnight Pacific Time (PT) tomorrow.
+      <label id="limit-error-close-button" for="limit-error-switch"></label>
+    </div>
     <script type="module">
       import * as THREE from 'three';
 //      import Stats from 'three/addons/libs/stats.module.js';
@@ -455,6 +490,9 @@
             });
             return selectedTiles;
           }
+        },
+        onTileError: () => {
+          document.getElementById('limit-error-switch').checked = true;
         }
       });
 
